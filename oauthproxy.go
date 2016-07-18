@@ -610,6 +610,16 @@ func (p *OAuthProxy) Authenticate(rw http.ResponseWriter, req *http.Request) int
 	} else {
 		rw.Header().Set("GAP-Auth", session.Email)
 	}
+	
+	// XXX (guitmz): Adds HTTPS verification and header (if applicable) that is necessary for our Ghost blog using SSL	
+	switch {
+ 	case p.redirectURL.Scheme != "":
+ 		req.Header.Set("X-Forwarded-Proto", p.redirectURL.Scheme)
+ 	case p.CookieSecure:
+ 		req.Header.Set("X-Forwarded-Proto", "https")
+ 	default:
+ 		req.Header.Set("X-Forwarded-Proto", "http")
+	}
 	return http.StatusAccepted
 }
 
